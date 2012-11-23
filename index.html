@@ -68,7 +68,8 @@
               this.model.save({
                 title: this.$("[data-name='title']").html(), 
                 content: this.$("[data-name='content']").html(),
-                time: this.$("[data-name='time']").html()
+                time: this.$("[data-name='time']").html(),
+                datetime: this.$("[data-name='datetime']").html
               },{silent: true});
             }        
           });
@@ -104,7 +105,8 @@
               this.title = this.$("#title");
               this.content = this.$("#content");
               this.time = this.$("#time");
-              
+              var date = new Date();
+              this.datetime = date.getTime();
             },
             createNew: function() {
               this.$(".invalid").removeClass("invalid");
@@ -117,11 +119,13 @@
                 content: this.content.val(),
                 time: this.time.val(),
                 email: localStorage.email,
-                name: localStorage.name
+                name: localStorage.name,
+                datetime: this.datetime.toLocaleTimeString()
               }, {at: 0});
               this.title.val("");
               this.content.val("");
               this.time.val("");
+              this.datetime;
             } 
           });
         
@@ -187,6 +191,9 @@
       </p>
       <p contenteditable='true' data-id='{{id}}' data-name='time'>
         {{time}}
+      </p>
+      <p data-id='{{id}}' data-name='datetime'>
+        {{datetime}}
       </p>
     </script>
     <div data-role='page' id='home'>
