@@ -54,7 +54,8 @@
           var ItemView = Backbone.View.extend ({
             tagName: "li",
             events: {
-              "blur [contenteditable]": "saveValues"
+              "blur [contenteditable]": "saveValues",
+              "click button" : "startTask"
             },
             initialize: function() { 
               this.model.bind('change', this.render, this);
@@ -70,7 +71,14 @@
                 content: this.$("[data-name='content']").html(),
                 time: this.$("[data-name='time']").html()
               },{silent: true});
-            }        
+            },
+            startTask: function() {
+              var date = new Date();
+              this.model.save({
+                time: date.getTime()
+              },{silent: true});
+            }
+
           });
           
           //View for rendering the list of entries
@@ -147,13 +155,16 @@
               }
               localStorage.name = this.name.val();
               localStorage.email = this.email.val();
+
             }
           });
           
           //Trigger an update of the articles collection 
           $("#refresh").live('click',function () {
             articles.fetch();
-          });    
+          });
+
+          $("button")    
           
           //Instantiate the collection of articles
           articles = new Articles();
@@ -188,6 +199,7 @@
       <p contenteditable='true' data-id='{{id}}' data-name='time'>
         {{time}}
       </p>
+      <button id="start" data-id='{{id}}' type="button" > Start </button>
     </script>
     <div data-role='page' id='home'>
       <div data-role='header'>
