@@ -55,7 +55,7 @@
             tagName: "li",
             events: {
               "blur [contenteditable]": "saveValues",
-              "click button" : "startTask"
+              "click button" : "stopTask"
             },
             initialize: function() { 
               this.model.bind('change', this.render, this);
@@ -70,13 +70,12 @@
                 title: this.$("[data-name='title']").html(), 
                 content: this.$("[data-name='content']").html(),
                 time: this.$("[data-name='time']").html(),
-                datetime: this.$("[data-name='datetime']").html
+                datetime: this.$("[data-name='datetime']").html()
               },{silent: true});
             },
-            startTask: function() {
-              var date = new Date();
+            stopTask: function() {
               this.model.save({
-                time: date.getTime()
+                end:  new Date().getTime()
               },{silent: true});
             }
 
@@ -122,18 +121,21 @@
                 this.$(":invalid").addClass("invalid");
                 return false;
               }
+
               this.collection.create({
                 title: this.title.val(), 
                 content: this.content.val(),
                 time: this.time.val(),
                 email: localStorage.email,
                 name: localStorage.name,
-                datetime: this.datetime.toLocaleTimeString()
+                datetime: this.datetime.toLocaleTimeString(),
+                start: new Date().getTime(),
+                end: 0
               }, {at: 0});
               this.title.val("");
               this.content.val("");
               this.time.val("");
-              this.datetime;
+             // this.datetime;
             } 
           });
         
@@ -167,8 +169,7 @@
           $("#refresh").live('click',function () {
             articles.fetch();
           });
-
-          $("button")    
+  
           
           //Instantiate the collection of articles
           articles = new Articles();
@@ -200,13 +201,14 @@
       <p contenteditable='true' data-id='{{id}}' data-name='content'>
         {{content}}
       </p>
-      <p contenteditable='true' data-id='{{id}}' data-name='time'>
-        {{time}}
+      <p data-id='{{id}}' data-name='start'>
+        {{start}}
       </p>
-      <p data-id='{{id}}' data-name='datetime'>
-        {{datetime}}
+      <p data-id='{{id}}' data-name='duration'>
+        {{end}}
       </p>
-      <button id="start" data-id='{{id}}' type="button" > Start </button>
+
+      <button id="stop" data-id='{{id}}' type="button" > Stop </button>
     </script>
     <div data-role='page' id='home'>
       <div data-role='header'>
@@ -241,7 +243,6 @@
         <form>
           <input id='title' name='title' placeholder='Post Title' required='required' type='text' />
           <textarea id='content' name='content' placeholder='Content' rows='5'></textarea>
-          <input id='time' name='time' placeholder='Time Created' type='text' />
           <a data-role='button' href='#home' id='postEntry'>Post</a>
         </form>
       </div>
