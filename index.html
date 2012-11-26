@@ -71,16 +71,15 @@
                 content: this.$("[data-name='content']").html(),
                 datetimeString: this.$("[data-name='datetimeString']").html,
                 endTimeString: this.$("[data-name='endTimeString']").html,
+                timeSpent: this.$("[data-name='timeSpent']").html,
                 taskType: this.$("[data-name='taskType']").html
               },{silent: true});
             },
             endTask: function() {
-              console.log("Task Ended.");
               var endDate = new Date();
-              console.log(endDate);
-              console.log(this.model);
               this.model.attributes.endTime = endDate.getTime();
               this.model.attributes.endTimeString = endDate.toLocaleTimeString();
+              this.model.attributes.timeSpent = Math.floor((this.model.attributes.endTime - this.model.attributes.dateTime)/1000/60);
               this.model.save();
             }    
           });
@@ -137,6 +136,7 @@
                 datetimeString: this.date.toLocaleTimeString(),
                 endTime: "",
                 endTimeString: "",
+                timeSpent: ""
               }, {at: 0});
               this.title.val("");
               this.content.val("");
@@ -211,6 +211,9 @@
           </p>
           <p data-id='{{id}}' data-name='endTimeString'>
             Ended at: {{endTimeString}}
+          </p>
+          <p data-id='{{id}}' data-name='timeSpent'>
+            Time spent: {{timeSpent}} minutes
           </p>
         </div>
         <div class="ui-block-b">
