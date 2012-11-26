@@ -55,7 +55,8 @@
             tagName: "li",
             events: {
               "blur [contenteditable]": "saveValues",
-              "click #endTask": "endTask"
+              "click #endTask": "endTask",
+              "click #clearTask": "clearTask"
             },
             initialize: function() { 
               this.model.bind('change', this.render, this);
@@ -81,7 +82,10 @@
               this.model.attributes.endTimeString = endDate.toLocaleTimeString();
               this.model.attributes.timeSpent = Math.floor((this.model.attributes.endTime - this.model.attributes.dateTime)/1000/60);
               this.model.save();
-            }    
+            },
+            clearTask: function() {
+              this.model.destroy();
+            }
           });
           
           //View for rendering the list of entries
@@ -217,7 +221,8 @@
           </p>
         </div>
         <div class="ui-block-b">
-          <button type='submit' id="endTask" data-theme='b'>Stop Tracking</button>
+          <button type='submit' id='endTask' data-theme='b'>Stop Tracking</button>
+          <button type='submit' id='clearTask' data-theme='b'>Remove task</button>
         </div>
       </div>
     </script>
