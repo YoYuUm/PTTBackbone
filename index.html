@@ -55,7 +55,7 @@
             tagName: "li",
             events: {
               "blur [contenteditable]": "saveValues",
-              "click button" : "stopTask"
+              "click #endTask": "endTask"
             },
             initialize: function() { 
               this.model.bind('change', this.render, this);
@@ -69,16 +69,20 @@
               this.model.save({
                 title: this.$("[data-name='title']").html(), 
                 content: this.$("[data-name='content']").html(),
-                time: this.$("[data-name='time']").html(),
-                datetime: this.$("[data-name='datetime']").html()
+                datetimeString: this.$("[data-name='datetimeString']").html,
+                endTimeString: this.$("[data-name='endTimeString']").html,
+                taskType: this.$("[data-name='taskType']").html
               },{silent: true});
             },
-            stopTask: function() {
-              this.model.save({
-                end:  new Date().getTime()
-              },{silent: true});
-            }
-
+            endTask: function() {
+              console.log("Task Ended.");
+              var endDate = new Date();
+              console.log(endDate);
+              console.log(this.model);
+              this.model.attributes.endTime = endDate.getTime();
+              this.model.attributes.endTimeString = endDate.toLocaleTimeString();
+              this.model.save();
+            }    
           });
           
           //View for rendering the list of entries
@@ -111,9 +115,11 @@
             initialize: function() {
               this.title = this.$("#title");
               this.content = this.$("#content");
-              this.time = this.$("#time");
-              var date = new Date();
-              this.datetime = date.getTime();
+              this.date = new Date();
+              this.dateTime = this.date.getTime();
+              this.taskType = this.$("#selectTask")
+              //console.log(this.date);
+             // console.log(this.dateTime);
             },
             createNew: function() {
               this.$(".invalid").removeClass("invalid");
@@ -121,21 +127,20 @@
                 this.$(":invalid").addClass("invalid");
                 return false;
               }
-
               this.collection.create({
                 title: this.title.val(), 
                 content: this.content.val(),
-                time: this.time.val(),
                 email: localStorage.email,
                 name: localStorage.name,
-                datetime: this.datetime.toLocaleTimeString(),
-                start: new Date().getTime(),
-                end: 0
+                taskType: this.taskType.val(), 
+                dateTime: this.dateTime,
+                datetimeString: this.date.toLocaleTimeString(),
+                endTime: "",
+                endTimeString: "",
               }, {at: 0});
               this.title.val("");
               this.content.val("");
-              this.time.val("");
-             // this.datetime;
+              this.taskType.val("");
             } 
           });
         
@@ -161,15 +166,13 @@
               }
               localStorage.name = this.name.val();
               localStorage.email = this.email.val();
-
             }
           });
           
           //Trigger an update of the articles collection 
           $("#refresh").live('click',function () {
             articles.fetch();
-          });
-  
+          });    
           
           //Instantiate the collection of articles
           articles = new Articles();
@@ -187,28 +190,33 @@
   </head>
   <body>
     <script id='article' type='text/x-handlebars-template'>
-      <p class='ui-li-aside'>
-        {{timestamp}}
-      </p>
-      <h3 contenteditable='true' data-id='{{id}}' data-name='title'>
-        {{title}}
-      </h3>
-      <p>
-        <strong>
-          {{email}}
-        </strong>
-      </p>
-      <p contenteditable='true' data-id='{{id}}' data-name='content'>
-        {{content}}
-      </p>
-      <p data-id='{{id}}' data-name='start'>
-        {{start}}
-      </p>
-      <p data-id='{{id}}' data-name='duration'>
-        {{end}}
-      </p>
-
-      <button id="stop" data-id='{{id}}' type="button" > Stop </button>
+      <div class="ui-grid-a">
+        <div class="ui-block-a">
+          <h3 contenteditable='true' data-id='{{id}}' data-name='title'>
+              {{title}}
+          </h3>
+          <p>
+            <strong>
+              {{email}}
+            </strong>
+          </p>
+          <p contenteditable='true' data-id='{{id}}' data-name='content'>
+            {{content}}
+          </p><br>
+          <p data-id='{{id}}' data-name='taskType'>
+            Type of the task: {{taskType}}
+          </p>
+          <p data-id='{{id}}' data-name='datetimeString'>
+            Started at: {{datetimeString}}
+          </p>
+          <p data-id='{{id}}' data-name='endTimeString'>
+            Ended at: {{endTimeString}}
+          </p>
+        </div>
+        <div class="ui-block-b">
+          <button type='submit' id="endTask" data-theme='b'>Stop Tracking</button>
+        </div>
+      </div>
     </script>
     <div data-role='page' id='home'>
       <div data-role='header'>
@@ -243,6 +251,12 @@
         <form>
           <input id='title' name='title' placeholder='Post Title' required='required' type='text' />
           <textarea id='content' name='content' placeholder='Content' rows='5'></textarea>
+          <label for="selectTask" class="select"><h4>Select the type of the task:</h4></label>
+          <select name="selectTask" id="selectTask">
+            <option value="Work">Work</option>
+            <option value="Eat">Eat</option>
+            <option value="Sleep">Sleep</option>
+          </select><br><br>
           <a data-role='button' href='#home' id='postEntry'>Post</a>
         </form>
       </div>
